@@ -1,5 +1,5 @@
 import tqdm
-import wandb
+#import wandb
 import argparse
 import random
 import math
@@ -146,13 +146,13 @@ def main():
 
     seed_everything(args.seed)
 
-    # TODO: Update this with new wandb project
-    if args.log_wandb:
-        wandb.init(
-            name=f"{args.model.split('/')[-1]}_{args.language}", 
-            config=args, project="HPLT_UD", entity="ltg", 
-            tags=[args.language, args.model]
-        )
+    # # TODO: Update this with new wandb project
+    # if args.log_wandb:
+    #     wandb.init(
+    #         name=f"{args.model.split('/')[-1]}_{args.language}", 
+    #         config=args, project="HPLT_UD", entity="ltg", 
+    #         tags=[args.language, args.model]
+    #     )
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -166,8 +166,8 @@ def main():
 
     model = Model(args, train_data).to(device)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    if args.log_wandb:
-        wandb.config.update({"params": n_params})
+    # if args.log_wandb:
+    #     wandb.config.update({"params": n_params})
     print(f"{args.language}: {n_params}", flush=True)
 
     ema_model = copy.deepcopy(model)
@@ -255,22 +255,22 @@ def main():
                 for param_q, param_k in zip(model.parameters(), ema_model.parameters()):
                     param_k.data.mul_(args.ema_decay).add_((1.0 - args.ema_decay) * param_q.detach().data)
 
-            if args.log_wandb:
-                wandb.log(
-                    {
-                        "epoch": epoch,
-                        "train/lemma_loss": lemma_loss.item(),
-                        "train/upos_loss": upos_loss.item(),
-                        "train/xpos_loss": xpos_loss.item(),
-                        "train/feats_loss": feats_loss.item(),
-                        "train/head_loss": head_loss.item(),
-                        "train/dep_loss": dep_loss.item(),
-                        "train/aux_feats_loss": aux_feats_loss.item() if not isinstance(aux_feats_loss, float) else 0.0,
-                        "train/loss": loss.item(),
-                        "stats/grad_norm": grad_norm.item(),
-                        "stats/learning_rate": optimizer.param_groups[0]['lr'],
-                    }
-                )
+            # if args.log_wandb:
+            #     wandb.log(
+            #         {
+            #             "epoch": epoch,
+            #             "train/lemma_loss": lemma_loss.item(),
+            #             "train/upos_loss": upos_loss.item(),
+            #             "train/xpos_loss": xpos_loss.item(),
+            #             "train/feats_loss": feats_loss.item(),
+            #             "train/head_loss": head_loss.item(),
+            #             "train/dep_loss": dep_loss.item(),
+            #             "train/aux_feats_loss": aux_feats_loss.item() if not isinstance(aux_feats_loss, float) else 0.0,
+            #             "train/loss": loss.item(),
+            #             "stats/grad_norm": grad_norm.item(),
+            #             "stats/learning_rate": optimizer.param_groups[0]['lr'],
+            #         }
+            #     )
             train_iter.set_postfix_str(f"loss: {loss.item()}")
 
         # save checkpoint
@@ -330,22 +330,22 @@ def main():
             except:
                 break
 
-            if args.log_wandb and loader_index == 0:
-                wandb.log(
-                    {
-                        "epoch": epoch,
-                        f"valid/dev_UPOS": evaluation["UPOS"].aligned_accuracy * 100,
-                        f"valid/dev_XPOS": evaluation["XPOS"].aligned_accuracy * 100,
-                        f"valid/dev_UFeats": evaluation["UFeats"].aligned_accuracy * 100,
-                        f"valid/dev_AllTags": evaluation["AllTags"].aligned_accuracy * 100,
-                        f"valid/dev_Lemmas": evaluation["Lemmas"].aligned_accuracy * 100,
-                        f"valid/dev_UAS": evaluation["UAS"].aligned_accuracy * 100,
-                        f"valid/dev_LAS": evaluation["LAS"].aligned_accuracy * 100,
-                        f"valid/dev_MLAS": evaluation["MLAS"].aligned_accuracy * 100,
-                        f"valid/dev_CLAS": evaluation["CLAS"].aligned_accuracy * 100,
-                        f"valid/dev_BLEX": evaluation["BLEX"].aligned_accuracy * 100
-                    }
-                )
+            # if args.log_wandb and loader_index == 0:
+            #     wandb.log(
+            #         {
+            #             "epoch": epoch,
+            #             f"valid/dev_UPOS": evaluation["UPOS"].aligned_accuracy * 100,
+            #             f"valid/dev_XPOS": evaluation["XPOS"].aligned_accuracy * 100,
+            #             f"valid/dev_UFeats": evaluation["UFeats"].aligned_accuracy * 100,
+            #             f"valid/dev_AllTags": evaluation["AllTags"].aligned_accuracy * 100,
+            #             f"valid/dev_Lemmas": evaluation["Lemmas"].aligned_accuracy * 100,
+            #             f"valid/dev_UAS": evaluation["UAS"].aligned_accuracy * 100,
+            #             f"valid/dev_LAS": evaluation["LAS"].aligned_accuracy * 100,
+            #             f"valid/dev_MLAS": evaluation["MLAS"].aligned_accuracy * 100,
+            #             f"valid/dev_CLAS": evaluation["CLAS"].aligned_accuracy * 100,
+            #             f"valid/dev_BLEX": evaluation["BLEX"].aligned_accuracy * 100
+            #         }
+            #     )
 
             if loader_index == 0:
                 print(evaluation["MLAS"].aligned_accuracy * 100, evaluation["BLEX"].aligned_accuracy * 100, flush=True)
