@@ -2,6 +2,10 @@
 
 This repository contains information and code realted to HPLT Work Package 4: High Performance Language Models
 
+## Victoria's changes
+- adapted code to work on Saga
+- needed a virtual enironment.
+
 ## Objectives
 
 This work package will train and evaluate language models, both mono- and multi-lingual. Comprehensive eval uation will use both intrinsic and extrinsic measures of model quality. The work package additionally emphasizes the efficiency of data and computational resources, exploring e.g. various alternative training objectives, as well as ethical considerations in model training and use, in particular approaches for quantifying and reducing model biases internalized from training data.

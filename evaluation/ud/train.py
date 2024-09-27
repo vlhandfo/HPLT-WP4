@@ -22,7 +22,7 @@ from model import Model
 from lemma_rule import apply_lemma_rule
 
 
-def seed_everything(seed_value=42):
+def seed_everything(seed_value: int = 42) -> None:
     os.environ['PYTHONHASHSEED'] = str(seed_value)
     random.seed(seed_value)
     torch.manual_seed(seed_value)
@@ -86,7 +86,7 @@ def load_data(args, tokenizer):
     treebank = language_treebank_mapping[args.language]
     if treebank is None:
         raise ValueError(f"Treebank not found for {args.language}")
-    treebank_path = f"ud-treebanks-v2.13/{treebank}"
+    treebank_path = f"ud-treebanks-v2.14/{treebank}"
 
     # find train, dev, test filenames
     train_filename, dev_filename, test_filename = None, None, None
@@ -127,7 +127,7 @@ def main():
     parser.add_argument("--seed", action="store", type=int, default=42)
     parser.add_argument("--min_count", action="store", type=int, default=3)
     parser.add_argument("--ema_decay", action="store", type=float, default=0.995)
-    parser.add_argument("--log_wandb", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--log_wandb", action="store_true")
     args = parser.parse_args()
 
     if args.language in ["mr", "ta"]:
@@ -140,20 +140,19 @@ def main():
         args.epochs = 60
 
     if args.model == "hplt":
-        args.model_path = f"/scratch/project_465000498/hplt_hf_models/{args.language}"
-        if not os.path.exists(args.model_path):
-            raise ValueError(f"Model {args.model_path} not found")
-    elif args.model == "mbert":
-        args.model_path = f"bert-base-multilingual-cased"
-    elif args.model == "xlmr":
-        args.model_path = f"xlm-roberta-base"
+        args.model_path ="HPLT/hplt_bert_base_" + args.language 
     else:
         raise ValueError(f"Unknown model {args.model}")
 
     seed_everything(args.seed)
 
+    # TODO: Update this with new wandb project
     if args.log_wandb:
-        wandb.init(name=f"{args.model.split('/')[-1]}_{args.language}", config=args, project="HPLT_UD", entity="ltg", tags=[args.language, args.model])
+        wandb.init(
+            name=f"{args.model.split('/')[-1]}_{args.language}", 
+            config=args, project="HPLT_UD", entity="ltg", 
+            tags=[args.language, args.model]
+        )
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
