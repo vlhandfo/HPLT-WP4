@@ -115,9 +115,9 @@ def load_data(args, tokenizer):
 
 def main():
     parser = ArgumentParser()
+    parser.add_argument("language", action="store", type=str, default="cs")
     parser.add_argument("--bidirectional", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--model", default="hplt")
-    parser.add_argument("--language", action="store", type=str, default="cs")
     parser.add_argument("--batch_size", action="store", type=int, default=32)
     parser.add_argument("--lr", action="store", type=float, default=0.0005)
     parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
