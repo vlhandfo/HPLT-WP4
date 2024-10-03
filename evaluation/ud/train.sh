@@ -27,12 +27,9 @@ module use -a /cluster/shared/nlpl/software/eb/etc/all/
 # Include this if running on A100
 # module --force swap StdEnv Zen2Env 
 
-export LMOD_DISABLE_SAME_NAME_AUTOSWAP="no"
-
-module load nlpl-nlptools/01-foss-2022b-Python-3.10.8
-module load nlpl-cython/0.29.37-foss-2022b-Python-3.10.8
+module load nlpl-nlptools/02-foss-2022b-Python-3.10.8
 module load nlpl-pytorch/2.1.2-foss-2022b-cuda-12.0.0-Python-3.10.8
-#module load nlpl-wandb/0.15.2-foss-2022b-Python-3.10.8 		# Causes a problem with `requests library`
+module load nlpl-wandb/0.15.2-foss-2022b-Python-3.10.8 		
 module load nlpl-transformers/4.38.2-foss-2022b-Python-3.10.8
 
 # Activate virtual environment
