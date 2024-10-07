@@ -2,14 +2,13 @@
 
 #SBATCH --job-name=UD_EVAL
 #SBATCH --account=nn9851k
-#SBATCH --time=1:00:00
+#SBATCH --time=12:00:00
 #SBATCH --mem-per-cpu=7G
 #SBATCH --cpus-per-task=8
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=1
 #SBATCH --partition=accel
-#SBATCH --qos=devel
 #SBATCH --output=report/%j.out
 
 set -o errexit  # Exit the script on any error
