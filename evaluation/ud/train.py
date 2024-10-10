@@ -4,11 +4,13 @@ import argparse
 import random
 import math
 import json
+import logging
 import copy
 import os
 import torch
 import torch.nn.functional as F
 import numpy as np
+from pathlib import Path
 from torch import nn
 from torch.utils.data import DataLoader
 from argparse import ArgumentParser
@@ -112,8 +114,73 @@ def load_data(args, tokenizer):
 
     return train_data, dev_data, test_data
 
+def load_data_subsets(args, tokenizer):
+    treebank_path = Path(f"subsets/{args.language}")
+
+    # find train, dev, test filenames
+    for filename in Path(treebank_path).rglob("*"):
+        if "dev" in filename.name and ".conllu" in filename.suffixes:
+            dev_filename = filename
+        elif "train" in filename.name and ".conllu" in filename.suffixes:
+            train_filename = filename
+        elif "test" in filename.name and ".conllu" in filename.suffixes:
+            test_filename = filename
+    
+    if train_filename is None:
+        raise ValueError(f"Train file not found for {args.language}")
+    if test_filename is None and dev_filename is not None:
+        test_filename = dev_filename
+        dev_filename = None
+    if test_filename is None:
+        raise ValueError(f"Test file not found for {args.language}")
+
+    train_data = Dataset(
+        train_filename, 
+        partition='train', 
+        tokenizer=tokenizer, 
+        add_sep=True,
+        random_mask=True,
+        min_count=args.min_count
+    )
+    
+    dev_data = Dataset(
+        dev_filename, 
+        partition='dev',
+        tokenizer=tokenizer,
+        forms_vocab=train_data.forms_vocab,
+        lemma_vocab=train_data.lemma_vocab,
+        upos_vocab=train_data.upos_vocab,
+        xpos_vocab=train_data.xpos_vocab,
+        feats_vocab=train_data.feats_vocab,
+        arc_dep_vocab=train_data.arc_dep_vocab,
+        add_sep=True,
+        random_mask=False
+    ) if dev_filename is not None else None
+    
+    test_data = Dataset(
+        test_filename,
+        partition='test',
+        tokenizer=tokenizer,
+        forms_vocab=train_data.forms_vocab,
+        lemma_vocab=train_data.lemma_vocab,
+        upos_vocab=train_data.upos_vocab,
+        xpos_vocab=train_data.xpos_vocab,
+        feats_vocab=train_data.feats_vocab,
+        arc_dep_vocab=train_data.arc_dep_vocab,
+        add_sep=True, 
+        random_mask=False
+    )
+
+    return train_data, dev_data, test_data
+
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filename="report/normalize_dataset_size.log",
+        filemode="w",
+    )
     parser = ArgumentParser()
     parser.add_argument("language", action="store", type=str, default="cs")
     parser.add_argument("--bidirectional", action=argparse.BooleanOptionalAction, default=True)
@@ -128,6 +195,7 @@ def main():
     parser.add_argument("--min_count", action="store", type=int, default=3)
     parser.add_argument("--ema_decay", action="store", type=float, default=0.995)
     parser.add_argument("--log_wandb", action="store_true")
+    parser.add_argument("--use_full_ud", action="store_true")
     args = parser.parse_args()
 
     if args.language in ["mr", "ta"]:
@@ -143,6 +211,10 @@ def main():
         args.model_path ="HPLT/hplt_bert_base_" + args.language 
     else:
         raise ValueError(f"Unknown model {args.model}")
+    
+    logging.info("ARGUMENTS")
+    for k, v in args.__dict__.items():
+        logging.info(f"{k}: {v}")
 
     seed_everything(args.seed)
 
@@ -157,7 +229,12 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_path)
-    train_data, dev_data, test_data = load_data(args, tokenizer)
+    
+    logging.info("Loading in datasets")
+    if args.use_full_ud:
+        train_data, dev_data, test_data = load_data(args, tokenizer)
+    else:
+        train_data, dev_data, test_data = load_data_subsets(args, tokenizer)
 
     # build and pad with loaders
     train_loader = DataLoader(train_data, args.batch_size, shuffle=True, drop_last=True, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index))
@@ -204,6 +281,7 @@ def main():
     test_results = {}
     best_mlas_blex_sum = 0.0
 
+    logging.info("Beginning training...")
     # train loop
     for epoch in range(args.epochs):
         train_iter = tqdm.tqdm(train_loader)
@@ -280,7 +358,7 @@ def main():
             },
             f"checkpoints/ud-{args.language}-{args.model}.bin"
         )
-
+        logging.info(f"Evaluation: Epoch {epoch}")
         # eval
         for loader_index, (loader, dataset) in enumerate([(dev_loader, dev_data), (test_loader, test_data)]):
             if loader is None:
