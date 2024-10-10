@@ -177,9 +177,7 @@ def load_data_subsets(args, tokenizer):
 def main():
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        filename="report/normalize_dataset_size.log",
-        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s"
     )
     parser = ArgumentParser()
     parser.add_argument("language", action="store", type=str, default="cs")
