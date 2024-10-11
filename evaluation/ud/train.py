@@ -1,5 +1,5 @@
 import tqdm
-#import wandb
+import wandb
 import argparse
 import random
 import math
@@ -15,6 +15,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from argparse import ArgumentParser
 from conllu import parse
+from huggingface_hub import list_repo_refs
 
 from transformers import AutoTokenizer
 
@@ -174,83 +175,24 @@ def load_data_subsets(args, tokenizer):
     return train_data, dev_data, test_data
 
 
-def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    parser = ArgumentParser()
-    parser.add_argument("language", action="store", type=str, default="cs")
-    parser.add_argument("--bidirectional", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--model", default="hplt")
-    parser.add_argument("--batch_size", action="store", type=int, default=16)
-    parser.add_argument("--lr", action="store", type=float, default=0.0005)
-    parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
-    parser.add_argument("--dropout", action="store", type=float, default=0.3)
-    parser.add_argument("--label_smoothing", action="store", type=float, default=0.1)
-    parser.add_argument("--epochs", action="store", type=int, default=10)
-    parser.add_argument("--seed", action="store", type=int, default=42)
-    parser.add_argument("--min_count", action="store", type=int, default=3)
-    parser.add_argument("--ema_decay", action="store", type=float, default=0.995)
-    parser.add_argument("--log_wandb", action="store_true")
-    parser.add_argument("--use_full_ud", action="store_true")
-    args = parser.parse_args()
-
-    if args.language in ["mr", "ta"]:
-        args.batch_size = args.batch_size // 4
-        args.lr = args.lr / 2
-    elif args.language in ["kk", "ky"]:
-        args.batch_size = args.batch_size // 8
-        args.lr = 0.0001
-        args.dropout = 0.5
-        args.epochs = 60
-
-    if args.model == "hplt":
-        args.model_path ="HPLT/hplt_bert_base_" + args.language 
-    else:
-        raise ValueError(f"Unknown model {args.model}")
+def main(args):
+    if args.log_wandb:
+        wandb.init(
+            name=f"{args.model}_{args.language}_{args.revision}", 
+            config=args, project="MSc", entity="in5550-vlhandfo", 
+            tags=[args.language, args.model, args.revision]
+        )
+    logging.info(f"CURRENT MODEL: {args.model_path}, revision: {args.revision}")
     
-    logging.info("ARGUMENTS")
-    for k, v in args.__dict__.items():
-        logging.info(f"{k}: {v}")
-
-    seed_everything(args.seed)
-
-    # # TODO: Update this with new wandb project
-    # if args.log_wandb:
-    #     wandb.init(
-    #         name=f"{args.model.split('/')[-1]}_{args.language}", 
-    #         config=args, project="HPLT_UD", entity="ltg", 
-    #         tags=[args.language, args.model]
-    #     )
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    tokenizer = AutoTokenizer.from_pretrained(args.model_path)
-    
-    logging.info("Loading in datasets")
-    if args.use_full_ud:
-        train_data, dev_data, test_data = load_data(args, tokenizer)
-    else:
-        train_data, dev_data, test_data = load_data_subsets(args, tokenizer)
-
-    # build and pad with loaders
-    train_loader = DataLoader(train_data, args.batch_size, shuffle=True, drop_last=True, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index))
-    dev_loader = DataLoader(dev_data, args.batch_size, shuffle=False, drop_last=False, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index)) if dev_data is not None else None
-    test_loader = DataLoader(test_data, args.batch_size, shuffle=False, drop_last=False, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index))
-
     model = Model(args, train_data).to(device)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    # if args.log_wandb:
-    #     wandb.config.update({"params": n_params})
+    if args.log_wandb:
+        wandb.config.update({"params": n_params})
     print(f"{args.language}: {n_params}", flush=True)
 
     ema_model = copy.deepcopy(model)
     for param in ema_model.parameters():
         param.requires_grad = False
-
-    criterion = nn.CrossEntropyLoss(ignore_index=-1, label_smoothing=args.label_smoothing).to(device)
-    masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
 
     params = list(model.named_parameters())
     no_decay = {'bias', 'LayerNorm', 'vectors', 'embedding', 'layer_score', 'layer_norm'}
@@ -331,22 +273,22 @@ def main():
                 for param_q, param_k in zip(model.parameters(), ema_model.parameters()):
                     param_k.data.mul_(args.ema_decay).add_((1.0 - args.ema_decay) * param_q.detach().data)
 
-            # if args.log_wandb:
-            #     wandb.log(
-            #         {
-            #             "epoch": epoch,
-            #             "train/lemma_loss": lemma_loss.item(),
-            #             "train/upos_loss": upos_loss.item(),
-            #             "train/xpos_loss": xpos_loss.item(),
-            #             "train/feats_loss": feats_loss.item(),
-            #             "train/head_loss": head_loss.item(),
-            #             "train/dep_loss": dep_loss.item(),
-            #             "train/aux_feats_loss": aux_feats_loss.item() if not isinstance(aux_feats_loss, float) else 0.0,
-            #             "train/loss": loss.item(),
-            #             "stats/grad_norm": grad_norm.item(),
-            #             "stats/learning_rate": optimizer.param_groups[0]['lr'],
-            #         }
-            #     )
+            if args.log_wandb:
+                wandb.log(
+                    {
+                        "epoch": epoch,
+                        "train/lemma_loss": lemma_loss.item(),
+                        "train/upos_loss": upos_loss.item(),
+                        "train/xpos_loss": xpos_loss.item(),
+                        "train/feats_loss": feats_loss.item(),
+                        "train/head_loss": head_loss.item(),
+                        "train/dep_loss": dep_loss.item(),
+                        "train/aux_feats_loss": aux_feats_loss.item() if not isinstance(aux_feats_loss, float) else 0.0,
+                        "train/loss": loss.item(),
+                        "stats/grad_norm": grad_norm.item(),
+                        "stats/learning_rate": optimizer.param_groups[0]['lr'],
+                    }
+                )
             train_iter.set_postfix_str(f"loss: {loss.item()}")
 
         # save checkpoint
@@ -354,7 +296,7 @@ def main():
                 "model": ema_model.state_dict(),
                 "dataset": train_data.state_dict()
             },
-            f"checkpoints/ud-{args.language}-{args.model}.bin"
+            f"checkpoints/ud-{args.language}-{args.model}-{args.revision}.bin"
         )
         logging.info(f"Evaluation: Epoch {epoch}")
         # eval
@@ -406,22 +348,22 @@ def main():
             except:
                 break
 
-            # if args.log_wandb and loader_index == 0:
-            #     wandb.log(
-            #         {
-            #             "epoch": epoch,
-            #             f"valid/dev_UPOS": evaluation["UPOS"].aligned_accuracy * 100,
-            #             f"valid/dev_XPOS": evaluation["XPOS"].aligned_accuracy * 100,
-            #             f"valid/dev_UFeats": evaluation["UFeats"].aligned_accuracy * 100,
-            #             f"valid/dev_AllTags": evaluation["AllTags"].aligned_accuracy * 100,
-            #             f"valid/dev_Lemmas": evaluation["Lemmas"].aligned_accuracy * 100,
-            #             f"valid/dev_UAS": evaluation["UAS"].aligned_accuracy * 100,
-            #             f"valid/dev_LAS": evaluation["LAS"].aligned_accuracy * 100,
-            #             f"valid/dev_MLAS": evaluation["MLAS"].aligned_accuracy * 100,
-            #             f"valid/dev_CLAS": evaluation["CLAS"].aligned_accuracy * 100,
-            #             f"valid/dev_BLEX": evaluation["BLEX"].aligned_accuracy * 100
-            #         }
-            #     )
+            if args.log_wandb and loader_index == 0:
+                wandb.log(
+                    {
+                        "epoch": epoch,
+                        f"valid/dev_UPOS": evaluation["UPOS"].aligned_accuracy * 100,
+                        f"valid/dev_XPOS": evaluation["XPOS"].aligned_accuracy * 100,
+                        f"valid/dev_UFeats": evaluation["UFeats"].aligned_accuracy * 100,
+                        f"valid/dev_AllTags": evaluation["AllTags"].aligned_accuracy * 100,
+                        f"valid/dev_Lemmas": evaluation["Lemmas"].aligned_accuracy * 100,
+                        f"valid/dev_UAS": evaluation["UAS"].aligned_accuracy * 100,
+                        f"valid/dev_LAS": evaluation["LAS"].aligned_accuracy * 100,
+                        f"valid/dev_MLAS": evaluation["MLAS"].aligned_accuracy * 100,
+                        f"valid/dev_CLAS": evaluation["CLAS"].aligned_accuracy * 100,
+                        f"valid/dev_BLEX": evaluation["BLEX"].aligned_accuracy * 100
+                    }
+                )
 
             if loader_index == 0:
                 print(evaluation["MLAS"].aligned_accuracy * 100, evaluation["BLEX"].aligned_accuracy * 100, flush=True)
@@ -445,10 +387,73 @@ def main():
                 }
 
                 # save results; lock and rewrite results.json
-                test_results[f"{args.language}_{args.model}"] = results
-                with open(f"results/{args.language}_{args.model}.jsonl", "w") as f:
+                test_results[f"{args.language}_{args.model}-{args.revision}"] = results
+                with open(f"results/{args.language}_{args.model}.jsonl", "a") as f:
                     json.dump(test_results, f)
+                    f.write("\n")
                 
 
 if __name__ == '__main__':
-    main()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    parser = ArgumentParser()
+    parser.add_argument("language", action="store", type=str, default="cs")
+    parser.add_argument("--bidirectional", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--model", default="hplt")
+    parser.add_argument("--batch_size", action="store", type=int, default=16)
+    parser.add_argument("--lr", action="store", type=float, default=0.0005)
+    parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
+    parser.add_argument("--dropout", action="store", type=float, default=0.3)
+    parser.add_argument("--label_smoothing", action="store", type=float, default=0.1)
+    parser.add_argument("--epochs", action="store", type=int, default=20)
+    parser.add_argument("--seed", action="store", type=int, default=42)
+    parser.add_argument("--min_count", action="store", type=int, default=3)
+    parser.add_argument("--ema_decay", action="store", type=float, default=0.995)
+    parser.add_argument("--log_wandb", action="store_true")
+    parser.add_argument("--use_full_ud", action="store_true")
+    args = parser.parse_args()
+
+    if args.language in ["mr", "ta"]:
+        args.batch_size = args.batch_size // 4
+        args.lr = args.lr / 2
+    elif args.language in ["kk", "ky"]:
+        args.batch_size = args.batch_size // 8
+        args.lr = 0.0001
+        args.dropout = 0.5
+        args.epochs = 60
+
+    if args.model == "hplt":
+        args.model_path ="HPLT/hplt_bert_base_" + args.language 
+    else:
+        raise ValueError(f"Unknown model {args.model}")
+    
+    logging.info("ARGUMENTS")
+    for k, v in args.__dict__.items():
+        logging.info(f"{k}: {v}")
+
+    seed_everything(args.seed)
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    tokenizer = AutoTokenizer.from_pretrained(args.model_path)
+    
+    logging.info("Loading in datasets")
+    if args.use_full_ud:
+        train_data, dev_data, test_data = load_data(args, tokenizer)
+    else:
+        train_data, dev_data, test_data = load_data_subsets(args, tokenizer)
+
+    # build and pad with loaders
+    train_loader = DataLoader(train_data, args.batch_size, shuffle=True, drop_last=True, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index))
+    dev_loader = DataLoader(dev_data, args.batch_size, shuffle=False, drop_last=False, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index)) if dev_data is not None else None
+    test_loader = DataLoader(test_data, args.batch_size, shuffle=False, drop_last=False, num_workers=7, collate_fn=CollateFunctor(train_data.pad_index))
+    
+    criterion = nn.CrossEntropyLoss(ignore_index=-1, label_smoothing=args.label_smoothing).to(device)
+    masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
+    
+    step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
+    for step_ref in step_checkpoints:
+        args.revision = step_ref
+        main(args)
