@@ -10,9 +10,9 @@ from conllu import parse
 from pathlib import Path
 
 LANGS = {
-    "primary": ["en", "he", "zh", "vi", "ko", "tr", "el"],
-    "secondary": ["id", "fr", "de", "tl", "ru", "ja", "th"],
-    "tertiary": ["my", "hi", "ka", "fi", "es", "fa"],
+    "primary": ["en", "he", "zh", "vi", "ko", "tr", "el", "id","ja"],
+    "secondary": ["fr", "fi", "es", "fa", "de", "ru", "hi"],
+    "tertiary": ["tl", "th"],
 }
 
 
