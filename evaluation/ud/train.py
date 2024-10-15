@@ -598,7 +598,6 @@ def main(args):
                         f"valid/dev_BLEX": evaluation["BLEX"].aligned_accuracy * 100,
                     }
                 )
-                run.finish()
 
             if loader_index == 0:
                 print(
@@ -633,6 +632,8 @@ def main(args):
                 with open(f"results/{args.language}_{args.model}.jsonl", "a") as f:
                     json.dump(test_results, f)
                     f.write("\n")
+    if args.log_wandb:
+        run.finish()
 
 
 if __name__ == "__main__":
@@ -645,7 +646,7 @@ if __name__ == "__main__":
         "--bidirectional", action=argparse.BooleanOptionalAction, default=True
     )
     parser.add_argument("--model", default="hplt")
-    parser.add_argument("--batch_size", action="store", type=int, default=16)
+    parser.add_argument("--batch_size", action="store", type=int, default=32)
     parser.add_argument("--lr", action="store", type=float, default=0.0005)
     parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
     parser.add_argument("--dropout", action="store", type=float, default=0.3)
@@ -671,6 +672,9 @@ if __name__ == "__main__":
         args.model_path = "HPLT/hplt_bert_base_" + args.language
     else:
         raise ValueError(f"Unknown model {args.model}")
+    
+    if args.log_wandb:
+        wandb.login(key=open("wandb/key.txt", "r", encoding="utf-8").read())
 
     logging.info("ARGUMENTS")
     for k, v in args.__dict__.items():
@@ -722,7 +726,7 @@ if __name__ == "__main__":
         ignore_index=-1, label_smoothing=args.label_smoothing
     ).to(device)
     masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
-
+        
     step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
     for step_ref in step_checkpoints:
         args.revision = step_ref
