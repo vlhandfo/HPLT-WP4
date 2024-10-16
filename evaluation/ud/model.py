@@ -248,7 +248,10 @@ class Model(nn.Module):
         super().__init__()
 
         self.bert = AutoModel.from_pretrained(
-            args.model_path, revision=args.revision, trust_remote_code=True
+            args.model_path, 
+            revision=args.revision, 
+            trust_remote_code=True,
+            cache_dir="cache"
         )
         self.n_layers = self.bert.config.num_hidden_layers
         args.hidden_size = self.bert.config.hidden_size

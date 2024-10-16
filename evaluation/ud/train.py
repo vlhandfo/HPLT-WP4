@@ -646,7 +646,7 @@ if __name__ == "__main__":
         "--bidirectional", action=argparse.BooleanOptionalAction, default=True
     )
     parser.add_argument("--model", default="hplt")
-    parser.add_argument("--batch_size", action="store", type=int, default=32)
+    parser.add_argument("--batch_size", action="store", type=int, default=16)
     parser.add_argument("--lr", action="store", type=float, default=0.0005)
     parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
     parser.add_argument("--dropout", action="store", type=float, default=0.3)
@@ -728,6 +728,6 @@ if __name__ == "__main__":
     masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
         
     step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
-    for step_ref in step_checkpoints:
+    for step_ref in step_checkpoints[3:]:
         args.revision = step_ref
         main(args)

@@ -1,5 +1,5 @@
 evaluation/ud/ud-treebanks-v2.14
-
+evaluation/ud/checkpoints/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

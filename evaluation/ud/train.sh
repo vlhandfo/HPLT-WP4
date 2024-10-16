@@ -2,7 +2,7 @@
 
 #SBATCH --account=nn9851k
 #SBATCH --job-name=UD_EVAL
-#SBATCH --partition=a100
+#SBATCH --partition=accel
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2:30:00
 #SBATCH --ntasks-per-node=1
@@ -24,8 +24,8 @@ module --quiet purge
 module use -a /cluster/shared/nlpl/software/eb/etc/all/
 
 # Include this if running on A100
-module --force swap StdEnv Zen2Env 
-
+#module --force swap StdEnv Zen2Env 
+module load Python/3.10.8-GCCcore-12.2.0
 module load nlpl-nlptools/02-foss-2022b-Python-3.10.8
 module load nlpl-pytorch/2.1.2-foss-2022b-cuda-12.0.0-Python-3.10.8
 module load nlpl-wandb/0.15.2-foss-2022b-Python-3.10.8 		
