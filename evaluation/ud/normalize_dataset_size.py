@@ -10,7 +10,7 @@ from conllu import parse
 from pathlib import Path
 
 LANGS = {
-    "primary": ["en", "he", "zh", "vi", "ko", "tr", "el", "id","ja"],
+    "primary": ["en", "he", "zh", "vi", "ko", "tr", "el", "id", "ja"],
     "secondary": ["fr", "fi", "es", "fa", "de", "ru", "hi"],
     "tertiary": ["tl", "th"],
 }
@@ -138,8 +138,16 @@ def main(args) -> None:
 
     datasets = load_datasets(file_paths)
 
-    normalized_sizes = find_smallest_dataset(datasets)
-    logging.info(f"Sizes of the normalized datasets: {normalized_sizes}")
+    if args.train_size is None:
+        normalized_sizes = find_smallest_dataset(datasets)
+        logging.info(f"Sizes of the normalized datasets: {normalized_sizes}")
+    else:
+        normalized_sizes = {
+            "train": args.train_size,
+            "dev": args.dev_size,
+            "test": args.test_size 
+        }
+        logging.info(f"Sizes of the normalized datasets: {normalized_sizes}")
 
     logging.info("Normalizing datasets...")
     for l, data in datasets.items():
@@ -159,7 +167,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        filename="normalize_dataset_size.log",
+        filename="normalize_dataset_size_secondary.log",
         filemode="w",
     )
 
@@ -186,6 +194,21 @@ if __name__ == "__main__":
         "--ud_treebanks_dir",
         help="Path to the UD treebanks directory",
         default="ud-treebanks-v2.14",
+    )
+    parser.add_argument(
+        "--train_size",
+        type=int,
+        help="The size of the train set to use"
+    )
+    parser.add_argument(
+        "--dev_size",
+        type=int,
+        help="The size of the train set to use"
+    )
+    parser.add_argument(
+        "--test_size",
+        type=int,
+        help="The size of the train set to use"
     )
     args = parser.parse_args()
 
