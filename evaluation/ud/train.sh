@@ -4,7 +4,7 @@
 #SBATCH --job-name=UD_EVAL
 #SBATCH --partition=accel
 #SBATCH --gpus-per-node=1
-#SBATCH --time=2:30:00
+#SBATCH --time=4:00:00
 #SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=8G
@@ -14,10 +14,10 @@
 set -o errexit  # Exit the script on any error
 set -o nounset  # Treat any unset variables as an error
 
-####################################################
-### Assumes that the datasets are already downloaded
-# Otherwise run download.sh
-####################################################
+###################################################################
+### Assumes that the datasets are already downloaded and normalized
+### Otherwise run download.sh and normalize_dataset_size.py
+###################################################################
 
 # Load modules
 module --quiet purge

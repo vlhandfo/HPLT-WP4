@@ -314,7 +314,11 @@ def load_data_subsets(args, tokenizer):
 
 
 def main(args):
+        
     if args.log_wandb:
+        tags = [args.language, args.model, args.revision]
+        if args.language in ["fr", "fi", "es", "fa", "de", "ru", "hi"]:
+            tags.append("secondary")
         run = wandb.init(
             reinit=True,
             name=f"{args.model}_{args.language}_{args.revision}",
@@ -322,7 +326,7 @@ def main(args):
             group=f"{args.model}_{args.language}",
             project="MSc",
             entity="in5550-vlhandfo",
-            tags=[args.language, args.model, args.revision],
+            tags=tags,
         )
     logging.info(f"CURRENT MODEL: {args.model_path}, revision: {args.revision}")
 
@@ -728,6 +732,6 @@ if __name__ == "__main__":
     masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
         
     step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
-    for step_ref in step_checkpoints[3:]:
+    for step_ref in step_checkpoints:
         args.revision = step_ref
         main(args)
