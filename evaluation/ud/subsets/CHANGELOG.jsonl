@@ -1,0 +1,45 @@
+{"language": "ru", "reduced_deprel": ["obl:agent", "nsubj:pass", "aux:pass", "nummod:gov", "acl:relcl", "flat:foreign", "csubj:pass", "flat:name", "obl:tmod", "nummod:entity"], "split": "test"}
+{"language": "ru", "reduced_deprel": ["obl:agent", "nsubj:pass", "aux:pass", "nummod:gov", "acl:relcl", "flat:foreign", "csubj:pass", "obl:tmod", "flat:name", "nummod:entity"], "split": "train"}
+{"language": "ru", "reduced_deprel": ["obl:agent", "nsubj:pass", "aux:pass", "nummod:gov", "acl:relcl", "flat:foreign", "csubj:pass", "flat:name", "obl:tmod", "nummod:entity"], "split": "dev"}
+{"language": "fi", "reduced_deprel": ["nsubj:cop", "nmod:poss", "nmod:gobj", "aux:pass", "compound:nn", "acl:relcl", "compound:prt", "nmod:gsubj", "cc:preconj", "flat:name", "xcomp:ds", "csubj:cop", "nsubj:outer", "cop:own"], "split": "test"}
+{"language": "fi", "reduced_deprel": ["nsubj:cop", "nmod:poss", "aux:pass", "nmod:gobj", "compound:nn", "acl:relcl", "compound:prt", "flat:foreign", "nmod:gsubj", "cc:preconj", "flat:name", "xcomp:ds", "csubj:cop", "nsubj:outer", "cop:own"], "split": "dev"}
+{"language": "fi", "reduced_deprel": ["nsubj:cop", "nmod:poss", "nmod:gobj", "aux:pass", "compound:nn", "acl:relcl", "compound:prt", "flat:foreign", "cc:preconj", "nmod:gsubj", "flat:name", "xcomp:ds", "csubj:cop", "nsubj:outer", "cop:own"], "split": "train"}
+{"language": "es", "reduced_deprel": ["obl:agent", "nsubj:pass", "obl:arg", "aux:pass", "acl:relcl", "expl:pass", "expl:impers", "expl:pv", "nsubj:outer"], "split": "dev"}
+{"language": "es", "reduced_deprel": ["obl:agent", "nsubj:pass", "obl:arg", "acl:relcl", "expl:pass", "expl:impers", "expl:pv"], "split": "train"}
+{"language": "es", "reduced_deprel": ["obl:agent", "obl:arg", "expl:impers", "expl:pass", "expl:pv"], "split": "test"}
+{"language": "ja", "reduced_deprel": ["csubj:outer", "nsubj:outer"], "split": "dev"}
+{"language": "ja", "reduced_deprel": ["nsubj:outer"], "split": "test"}
+{"language": "ja", "reduced_deprel": ["nsubj:outer"], "split": "train"}
+{"language": "tr", "reduced_deprel": [], "split": "dev"}
+{"language": "tr", "reduced_deprel": [], "split": "test"}
+{"language": "tr", "reduced_deprel": [], "split": "train"}
+{"language": "hi", "reduced_deprel": ["aux:pass", "acl:relcl", "nsubj:pass"], "split": "dev"}
+{"language": "hi", "reduced_deprel": ["aux:pass", "acl:relcl", "nsubj:pass"], "split": "test"}
+{"language": "hi", "reduced_deprel": ["aux:pass", "acl:relcl", "nsubj:pass"], "split": "train"}
+{"language": "he", "reduced_deprel": ["compound:affix", "nsubj:cop", "nmod:poss", "case:gen", "acl:relcl", "case:acc", "compound:smixut", "flat:name", "nsubj:outer"], "split": "test"}
+{"language": "he", "reduced_deprel": ["compound:affix", "nsubj:cop", "nmod:poss", "case:gen", "mark:q", "acl:relcl", "case:acc", "compound:smixut", "flat:name", "nsubj:outer"], "split": "dev"}
+{"language": "he", "reduced_deprel": ["compound:affix", "nsubj:cop", "nmod:poss", "case:gen", "mark:q", "acl:relcl", "case:acc", "compound:smixut", "flat:name", "nsubj:outer"], "split": "train"}
+{"language": "en", "reduced_deprel": ["nmod:npmod", "obl:agent", "nsubj:pass", "nmod:poss", "aux:pass", "compound:prt", "acl:relcl", "obl:npmod", "cc:preconj", "det:predet", "obl:tmod", "nmod:tmod", "advcl:relcl", "nsubj:outer"], "split": "dev"}
+{"language": "en", "reduced_deprel": ["advcl:relcl", "nmod:npmod", "obl:agent", "nsubj:pass", "nmod:poss", "aux:pass", "compound:prt", "acl:relcl", "obl:npmod", "cc:preconj", "csubj:pass", "obl:tmod", "nmod:tmod", "det:predet", "nsubj:outer"], "split": "test"}
+{"language": "en", "reduced_deprel": ["advcl:relcl", "nmod:npmod", "obl:agent", "nsubj:pass", "nmod:poss", "aux:pass", "compound:prt", "acl:relcl", "obl:npmod", "cc:preconj", "csubj:pass", "obl:tmod", "nmod:tmod", "nmod:desc", "det:predet", "nsubj:outer"], "split": "train"}
+{"language": "fr", "reduced_deprel": ["obl:agent", "expl:pass", "obj:agent", "obj:lvc", "csubj:pass", "flat:name", "advcl:cleft", "nsubj:caus", "parataxis:insert", "expl:subj", "nsubj:pass", "dep:comp", "acl:relcl", "flat:foreign", "aux:tense", "aux:caus", "expl:comp", "obl:arg", "aux:pass", "obl:mod", "expl:pv", "nsubj:outer"], "split": "train"}
+{"language": "fr", "reduced_deprel": ["iobj:agent", "obl:agent", "expl:pass", "obj:agent", "obj:lvc", "csubj:pass", "flat:name", "advcl:cleft", "parataxis:insert", "nsubj:caus", "expl:subj", "nsubj:pass", "acl:relcl", "flat:foreign", "aux:tense", "aux:caus", "expl:comp", "obl:arg", "aux:pass", "obl:mod", "expl:pv", "nsubj:outer"], "split": "dev"}
+{"language": "fr", "reduced_deprel": ["iobj:agent", "obl:agent", "expl:pass", "obj:agent", "obj:lvc", "csubj:pass", "flat:name", "advcl:cleft", "parataxis:insert", "nsubj:caus", "expl:subj", "nsubj:pass", "acl:relcl", "flat:foreign", "aux:tense", "aux:caus", "expl:comp", "obl:arg", "aux:pass", "obl:mod", "expl:pv", "nsubj:outer"], "split": "test"}
+{"language": "fa", "reduced_deprel": ["nsubj:pass", "obl:arg", "flat:name", "compound:lvc", "flat:num"], "split": "dev"}
+{"language": "fa", "reduced_deprel": ["nsubj:pass", "obl:arg", "flat:name", "compound:lvc", "flat:num"], "split": "test"}
+{"language": "fa", "reduced_deprel": ["nsubj:pass", "obl:arg", "flat:name", "compound:lvc", "flat:num"], "split": "train"}
+{"language": "vi", "reduced_deprel": ["obl:agent", "csubj:vsubj", "mark:pcomp", "flat:number", "compound:redup", "compound:atov", "compound:verbnoun", "nsubj:nn", "compound:adj", "acl:subj", "advmod:adj", "appos:nmod", "acl:tonp", "clf:det", "obl:comp", "compound:apr", "det:pmod", "obl:with", "obl:adv", "flat:name", "compound:dir", "nsubj:pass", "nmod:poss", "compound:vmod", "compound:prt", "advmod:dir", "compound:amod", "acl:relcl", "nsubj:xsubj", "obl:iobj", "obl:tmod", "obl:adj", "obl:about", "compound:pron", "compound:svc", "compound:z", "acl:tmod", "flat:time", "xcomp:vcomp", "aux:pass", "csubj:asubj", "xcomp:adj", "advmod:neg", "flat:date", "advcl:objective"], "split": "test"}
+{"language": "vi", "reduced_deprel": ["obl:agent", "csubj:vsubj", "mark:pcomp", "flat:number", "compound:atov", "compound:verbnoun", "nsubj:nn", "compound:adj", "acl:subj", "appos:nmod", "advmod:adj", "acl:tonp", "clf:det", "obl:comp", "det:pmod", "obl:with", "obl:adv", "csubj:pass", "compound:dir", "nsubj:pass", "nmod:poss", "compound:amod", "compound:vmod", "acl:relcl", "compound:prt", "advmod:dir", "obl:iobj", "obl:tmod", "obl:adj", "obl:about", "compound:pron", "compound:svc", "compound:z", "acl:tmod", "flat:time", "aux:pass", "csubj:asubj", "xcomp:adj", "nummod:det", "advmod:neg", "flat:date", "xcomp:dir", "advcl:objective"], "split": "dev"}
+{"language": "vi", "reduced_deprel": ["obl:agent", "csubj:vsubj", "flat:number", "mark:pcomp", "compound:redup", "compound:atov", "compound:verbnoun", "nsubj:nn", "compound:adj", "acl:subj", "advmod:adj", "appos:nmod", "acl:tonp", "clf:det", "obl:comp", "compound:apr", "det:pmod", "obl:with", "csubj:pass", "flat:name", "compound:dir", "nsubj:pass", "nmod:poss", "compound:vmod", "compound:prt", "advmod:dir", "nsubj:xsubj", "compound:amod", "acl:relcl", "flat:redup", "obl:iobj", "obl:tmod", "obl:adj", "obl:about", "compound:pron", "compound:svc", "compound:z", "acl:tmod", "flat:time", "xcomp:vcomp", "aux:pass", "csubj:asubj", "xcomp:adj", "advmod:neg", "flat:date", "advcl:objective"], "split": "train"}
+{"language": "id", "reduced_deprel": ["obl:agent", "nsubj:pass", "nmod:poss", "acl:relcl", "flat:foreign", "case:adv", "cc:preconj", "nmod:lmod", "flat:name", "obl:tmod", "nmod:tmod", "advmod:emph", "compound:a"], "split": "dev"}
+{"language": "id", "reduced_deprel": ["obl:agent", "nsubj:pass", "nmod:poss", "acl:relcl", "case:adv", "nmod:lmod", "flat:name", "obl:tmod", "nmod:tmod", "advmod:emph"], "split": "test"}
+{"language": "id", "reduced_deprel": ["obl:agent", "nsubj:pass", "nmod:poss", "acl:relcl", "flat:foreign", "case:adv", "cc:preconj", "nmod:lmod", "obl:tmod", "flat:name", "nmod:tmod", "csubj:pass", "advmod:emph"], "split": "train"}
+{"language": "ko", "reduced_deprel": [], "split": "test"}
+{"language": "ko", "reduced_deprel": [], "split": "dev"}
+{"language": "ko", "reduced_deprel": [], "split": "train"}
+{"language": "zh", "reduced_deprel": ["mark:adv", "nsubj:pass", "aux:pass", "mark:rel", "obl:patient", "acl:relcl", "flat:foreign", "csubj:pass", "flat:name", "nmod:tmod", "compound:ext"], "split": "test"}
+{"language": "zh", "reduced_deprel": ["mark:adv", "discourse:sp", "nsubj:pass", "aux:pass", "mark:rel", "obl:patient", "acl:relcl", "flat:foreign", "flat:name", "nmod:tmod", "compound:ext"], "split": "dev"}
+{"language": "zh", "reduced_deprel": ["mark:adv", "discourse:sp", "nsubj:pass", "aux:pass", "mark:rel", "obl:patient", "acl:relcl", "flat:foreign", "csubj:pass", "flat:name", "nmod:tmod", "compound:ext"], "split": "train"}
+{"language": "el", "reduced_deprel": ["obl:agent", "nsubj:pass", "obl:arg", "acl:relcl", "csubj:pass"], "split": "train"}
+{"language": "el", "reduced_deprel": ["csubj:pass", "obl:agent", "acl:relcl", "nsubj:pass"], "split": "test"}
+{"language": "el", "reduced_deprel": ["csubj:pass", "obl:agent", "acl:relcl", "nsubj:pass"], "split": "dev"}

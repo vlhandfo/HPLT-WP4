@@ -18,3 +18,11 @@
 |secondary  |     de|           1055|           20215|          682|         10756|           633|          10928|                17.678903|
 |secondary  |     ru|           1173|           20236|          645|         10748|           608|          10939|                17.280709|
 |secondary  |     hi|            972|           20216|          508|         10764|           529|          10934|                20.863116|
+
+## Deprels
+
+An alphabetically ordered list of the 37 deprels in UD:
+
+['acl', 'advcl', 'advmod', 'amod', 'appos', 'aux', 'case', 'cc', 'ccomp', 'clf', 'compound', 'conj', 'cop', 'csubj', 'dep', 'det', 'discourse', 'dislocated', 'expl', 'fixed', 'flat', 'goeswith', 'iobj', 'list', 'mark', 'nmod', 'nsubj', 'nummod', 'obj', 'obl', 'orphan', 'parataxis', 'punct', 'reparandum', 'root', 'vocative', 'xcomp']
+
+`CHANGELOG.jsonl` contains history of the labels that were reduced for each set of each language.
