@@ -3,7 +3,12 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import dependency_decoding
+
+# NOTE: Outdated, using ufal instead
+# import dependency_decoding 
+# ! pip install ufal.chu-liu-edmonds
+
+from ufal.chu_liu_edmonds import chu_liu_edmonds
 
 from transformers import AutoModel
 
@@ -204,7 +209,7 @@ class EdgeClassifier(nn.Module):
 
         # we need to make sure that the root is the parent of a single node
         # first, we try to use the default weights, it should work in most cases
-        parents, _ = dependency_decoding.chu_liu_edmonds(
+        parents, _ = chu_liu_edmonds(
             weight_matrix.numpy().astype(float)
         )
 
@@ -224,7 +229,7 @@ class EdgeClassifier(nn.Module):
             weight_matrix_mod = weight_matrix.clone()
             weight_matrix_mod[: i + 1, 0] = torch.nan
             weight_matrix_mod[i + 2 :, 0] = torch.nan
-            parents, score = dependency_decoding.chu_liu_edmonds(
+            parents, score = chu_liu_edmonds(
                 weight_matrix_mod.numpy().astype(float)
             )
             parents = parents[1:]

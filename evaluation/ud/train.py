@@ -7,6 +7,7 @@ import json
 import logging
 import copy
 import os
+import re
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -249,28 +250,34 @@ def load_data(args, tokenizer):
     return train_data, dev_data, test_data
 
 
-def load_data_subsets(args, tokenizer):
+def load_data_subsets(args, tokenizer, reduced_deprel: bool = True):
     treebank_path = Path(f"subsets/{args.language}")
 
-    # find train, dev, test filenames
-    for filename in Path(treebank_path).rglob("*"):
-        if "dev" in filename.name and ".conllu" in filename.suffixes:
-            dev_filename = filename
-        elif "train" in filename.name and ".conllu" in filename.suffixes:
-            train_filename = filename
-        elif "test" in filename.name and ".conllu" in filename.suffixes:
-            test_filename = filename
+    split_mapping = {
+        "train": None,
+        "dev": None,
+        "test": None
+    }
 
-    if train_filename is None:
+    regex = re.compile(r"(?P<lang>[a-z]{2})_\w*-ud-(?P<split>train|dev|test)_reduced-deprel.conllu")
+    if reduced_deprel is False:
+        regex = re.compile(r"(?P<lang>[a-z]{2})_\w*-ud-(?P<split>train|dev|test)_subset.conllu")
+        
+    for e in treebank_path.iterdir():
+        _result = regex.search(e.name)
+        if _result is not None:
+            split_mapping[_result["split"]] = e        
+
+    if split_mapping["train"] is None:
         raise ValueError(f"Train file not found for {args.language}")
-    if test_filename is None and dev_filename is not None:
-        test_filename = dev_filename
-        dev_filename = None
-    if test_filename is None:
+    if split_mapping["test"] is None and split_mapping["dev"] is not None:
+        split_mapping["test"] = split_mapping["dev"]
+        split_mapping["dev"] = None
+    if split_mapping["test"] is None:
         raise ValueError(f"Test file not found for {args.language}")
 
     train_data = Dataset(
-        train_filename,
+        split_mapping["train"],
         partition="train",
         tokenizer=tokenizer,
         add_sep=True,
@@ -280,7 +287,7 @@ def load_data_subsets(args, tokenizer):
 
     dev_data = (
         Dataset(
-            dev_filename,
+            split_mapping["dev"],
             partition="dev",
             tokenizer=tokenizer,
             forms_vocab=train_data.forms_vocab,
@@ -292,12 +299,12 @@ def load_data_subsets(args, tokenizer):
             add_sep=True,
             random_mask=False,
         )
-        if dev_filename is not None
+        if split_mapping["dev"] is not None
         else None
     )
 
     test_data = Dataset(
-        test_filename,
+        split_mapping["test"],
         partition="test",
         tokenizer=tokenizer,
         forms_vocab=train_data.forms_vocab,
@@ -309,6 +316,7 @@ def load_data_subsets(args, tokenizer):
         add_sep=True,
         random_mask=False,
     )
+
 
     return train_data, dev_data, test_data
 
@@ -694,6 +702,7 @@ if __name__ == "__main__":
     if args.use_full_ud:
         train_data, dev_data, test_data = load_data(args, tokenizer)
     else:
+        # TODO: add functionality to not use reduced deprels
         train_data, dev_data, test_data = load_data_subsets(args, tokenizer)
 
     # build and pad with loaders
