@@ -9,12 +9,13 @@ from argparse import ArgumentParser
 from conllu import parse
 from pathlib import Path
 
-LANGS = {
-    "primary": ["en", "he", "zh", "vi", "ko", "tr", "el", "id", "ja"],
-    "secondary": ["fr", "fi", "es", "fa", "de", "ru", "hi"],
-    "tertiary": ["tl", "th"],
-}
+# LANGS = {
+#     "primary": ["en", "he", "zh", "vi", "ko", "tr", "el", "id", "ja"],
+#     "secondary": ["fr", "fi", "es", "fa", "de", "ru", "hi"],
+#     "tertiary": ["tl", "th"],
+# }
 
+LANGS = ["nl", "en", "fi", "fr", "el", "he", "hi", "id", "ja", "ko", "fa", "pt", "ru", "zh", "tr", "vi"]
 
 def seed_everything(seed_value=42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed_value)
@@ -183,17 +184,17 @@ if __name__ == "__main__":
         "--out_dir",
         "-o",
         help="Path to the output directory",
-        default="subsets/",
+        default="/cluster/home/vlhandfo/HPLT-WP4/evaluation/ud/subsets/",
     )
     parser.add_argument(
         "--treebank_mapping",
         help="Filepath to mapping of language to UD treebank",
-        default="language_treebank_mapping.json",
+        default="/cluster/home/vlhandfo/HPLT-WP4/evaluation/ud/language_treebank_mapping.json",
     )
     parser.add_argument(
         "--ud_treebanks_dir",
         help="Path to the UD treebanks directory",
-        default="ud-treebanks-v2.14",
+        default="/cluster/work/users/vlhandfo/HPLT-WP4/evaluation/ud/ud-treebanks-v2.14",
     )
     parser.add_argument(
         "--train_size",
@@ -212,7 +213,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    args.languages = LANGS[args.language_set]
+    #args.languages = LANGS[args.language_set]
+    args.languages = LANGS
 
     logging.info("ARGUMENTS")
     for k, v in args.__dict__.items():
