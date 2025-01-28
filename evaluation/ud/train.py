@@ -26,6 +26,19 @@ from model import Model
 from lemma_rule import apply_lemma_rule
 
 
+MODEL_MAPPING = {
+    'el': 'ellG',
+    'en': 'engL',
+    'he': 'hebH',
+    'id': 'indL',
+    'ko': 'korH',
+    'fa': 'pesA',
+    'ru': 'rusC',
+    'tr': 'turL',
+    'vi': 'vieL',
+    'zh': 'zhoH'
+    }
+
 def seed_everything(seed_value: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed_value)
     random.seed(seed_value)
@@ -321,18 +334,17 @@ def load_data_subsets(args, tokenizer, reduced_deprel: bool = True):
     return train_data, dev_data, test_data
 
 
-def main(args):
-        
+def main(args):     
     if args.log_wandb:
         tags = [args.language, args.model, args.revision]
-        if args.language in ["fr", "fi", "es", "fa", "de", "ru", "hi"]:
-            tags.append("secondary")
+        # if args.language in ["fr", "fi", "es", "fa", "de", "ru", "hi"]:
+        #     tags.append("secondary")
         run = wandb.init(
             reinit=True,
             name=f"{args.model}_{args.language}_{args.revision}",
             config=args,
             group=f"{args.model}_{args.language}",
-            project="MSc",
+            project=args.project,
             entity="in5550-vlhandfo",
             tags=tags,
         )
@@ -641,7 +653,7 @@ def main(args):
 
                 # save results; lock and rewrite results.json
                 test_results[f"{args.language}_{args.model}-{args.revision}"] = results
-                with open(f"results/{args.language}_{args.model}.jsonl", "a") as f:
+                with open(f"/cluster/home/vlhandfo/HPLT-WP4/evaluation/ud/results/{args.language}_{args.model}.jsonl", "a") as f:
                     json.dump(test_results, f)
                     f.write("\n")
     if args.log_wandb:
@@ -658,7 +670,8 @@ if __name__ == "__main__":
         "--bidirectional", action=argparse.BooleanOptionalAction, default=True
     )
     parser.add_argument("--model", default="hplt")
-    parser.add_argument("--batch_size", action="store", type=int, default=16)
+    parser.add_argument("--fine_grained", "-f", action="store_true")
+    parser.add_argument("--batch_size", action="store", type=int, default=32)
     parser.add_argument("--lr", action="store", type=float, default=0.0005)
     parser.add_argument("--weight_decay", action="store", type=float, default=0.001)
     parser.add_argument("--dropout", action="store", type=float, default=0.3)
@@ -668,6 +681,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_count", action="store", type=int, default=3)
     parser.add_argument("--ema_decay", action="store", type=float, default=0.995)
     parser.add_argument("--log_wandb", action="store_true")
+    parser.add_argument("--project", type=str, default="MSc-v2")
     parser.add_argument("--use_full_ud", action="store_true")
     args = parser.parse_args()
 
@@ -739,8 +753,14 @@ if __name__ == "__main__":
         ignore_index=-1, label_smoothing=args.label_smoothing
     ).to(device)
     masked_criterion = CrossEntropySmoothingMasked(args.label_smoothing)
+    
+    if not args.fine_grained:   
+        step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
+    else:
+        _model = "/cluster/shared/nlpl/data/models/HPLTv2/" + MODEL_MAPPING[args.language]
+        step_checkpoints = [0, 30, 300, 760, 2290, 3050]
+        step_checkpoints = [f"{_model}_{x}/" for x in step_checkpoints]
         
-    step_checkpoints = [ref.name for ref in list_repo_refs(args.model_path).branches]
     for step_ref in step_checkpoints:
-        args.revision = step_ref
+        args.revision = step_ref 
         main(args)

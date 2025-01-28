@@ -251,13 +251,19 @@ class EdgeClassifier(nn.Module):
 class Model(nn.Module):
     def __init__(self, args, dataset):
         super().__init__()
-
-        self.bert = AutoModel.from_pretrained(
-            args.model_path, 
-            revision=args.revision, 
-            trust_remote_code=True,
-            cache_dir="cache"
-        )
+        if args.fine_grained:
+            self.bert = AutoModel.from_pretrained(
+                args.revision, 
+                trust_remote_code=True,
+                cache_dir="cache"
+            )
+        else:
+            self.bert = AutoModel.from_pretrained(
+                args.model_path, 
+                revision=args.revision, 
+                trust_remote_code=True,
+                cache_dir="cache"
+            )
         self.n_layers = self.bert.config.num_hidden_layers
         args.hidden_size = self.bert.config.hidden_size
 
